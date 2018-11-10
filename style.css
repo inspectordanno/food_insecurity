@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css?family=Noto+Sans|Noto+Serif');
+
+#title {
+  font-family: 'Noto Serif', serif;
+  text-align: center;
+  font-size: 5em;
+  margin: auto 20%;
+  margin-bottom: 5%;
+}
+
+#directions {
+  font-family: 'Noto Sans', sans-serif;
+  margin: auto 20%;
+  margin-bottom: 5%;
+}
+
