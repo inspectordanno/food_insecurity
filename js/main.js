@@ -32,6 +32,7 @@ d3.csv('../data/food_insecurity.csv', d => {
       console.log(consolidated_data);
 
       const obj = {name: 'neighborhoods', children:[]}
+
       for(i=0; i < consolidated_data.length; i++){
         obj.children.push({
           name: consolidated_data[i].neighborhood,
@@ -40,29 +41,31 @@ d3.csv('../data/food_insecurity.csv', d => {
       }
       console.log(obj)
 
-      //help from https://bl.ocks.org/alokkshukla/3d6be4be0ef9f6977ec6718b2916d168
       const diameter = 600;
+
+      //help from https://bl.ocks.org/alokkshukla/3d6be4be0ef9f6977ec6718b2916d168
+      const svg = d3.select('#svg_container')
+      .append('svg')
+      .attr('width', diameter)
+      .attr('height', diameter)
+      .attr('class', 'bubble')
+
+      
       const color = d3.scaleSequential(d3.schemeRdYlGn);
-      const bubble = d3.pack()
+      const pack = d3.pack()
         .size([diameter, diameter])
         .padding(1.5);
 
-      const circlePositions = {};
-
-      const svg = d3.select('#svg_container')
-        .append('svg')
-        .attr('width', diameter)
-        .attr('height', diameter)
-        .attr('class', 'bubble')
-
-      const nodes = d3.hierarchy(obj)
+      const root = d3.hierarchy(obj)
         .sum(d => d.population)
+      
+      const data_pack = pack(root).descendants(),
+        circlePositions = {};
 
       const node = svg.selectAll('.node')
-        .data(bubble(nodes).descendants())
+        .data(data_pack)
         .enter()
         .append('g')
-        //.attr('class', 'node')
         .attr('class', d => {
           console.log(d)
           circlePositions[d.data.name] = {x: d.x, y:d.y}
