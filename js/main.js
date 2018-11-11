@@ -95,7 +95,8 @@ d3.csv('../data/food_insecurity.csv', d => {
       .append('text')
       .text(d => d.neighborhood)
       .style("text-anchor", "middle")
-      .style("fill", d => d.avg_food_insecure > 500 ? '#8a8a8a':'#333')
+      .style("fill", d => d.avg_food_insecure > 500 ? '#26d3ca':'#1a918a')
+      // .style("fill", '#26d3ca')
       .style("font-family", "Noto Sans, sans-serif")
       .style("font-size", 12)
       .style('font-weight', 'bold');
@@ -126,6 +127,7 @@ d3.csv('../data/food_insecurity.csv', d => {
         .text(`Less than ${rate}% unemployment`)
         .style("font-family", "Noto Sans, sans-serif")
         .style("font-size", 20)
+        .style('fill', '#1a918a');
 
         d3.select('svg')
         .append('text')
@@ -136,6 +138,7 @@ d3.csv('../data/food_insecurity.csv', d => {
         .text(`Greater than ${rate}% unemployment`)
         .style("font-family", "Noto Sans, sans-serif")
         .style("font-size", 20)
+        .style('fill', '#1a918a');
         });
       }
 
