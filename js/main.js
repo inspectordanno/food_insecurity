@@ -35,13 +35,13 @@ d3.csv('../data/food_insecurity.csv', d => {
       console.log(consolidated_data);
 
       const width = 1200;
-      const height = width/1.4
+      const height = width/1.75;
 
       const svg = d3.select('#svg_container')
       .append('svg')
       .attr('width', width)
       .attr('height', height)
-      .style('background-color', 'steelblue')
+      // .style('background-color', 'steelblue')
       .append('g')
       .attr('transform', 'translate(0,0)')
 
@@ -50,7 +50,7 @@ d3.csv('../data/food_insecurity.csv', d => {
       const radiusScale = d3.scaleSqrt().domain([5000, 120000]).range([8,60]);
 
       const colorScale = d3.scaleSequential(d3.interpolateReds)
-        .domain([250, 1000])
+        .domain([250, 1000]) 
 
       //the simulation is a collection of forces 
       //about where we want our forcs to go and how
@@ -58,18 +58,20 @@ d3.csv('../data/food_insecurity.csv', d => {
       //step one: get them to the middle
       //step two: don't have them collide
 
-      const forceXSeparate = d3.forceX(d => {
-        if (d.avg_unemployed < 5) {
-          return 200;
-        } else {
-          return 800;
-        }
-      });
+      const forceXSeparate = rate => {
+        return d3.forceX(d => {
+          if (d.avg_unemployed < rate) {
+            return 200;
+          } else {
+            return 800;
+          }
+        });
+      } 
 
       const forceXCombine = d3.forceX(width/2).strength(0.05);
 
       const forceCollide = d3.forceCollide(d => {
-        return radiusScale(d.population) + 20;
+        return radiusScale(d.population) + 15;
       });
 
       let simulation = d3.forceSimulation()
@@ -81,6 +83,7 @@ d3.csv('../data/food_insecurity.csv', d => {
         .data(consolidated_data)
         .enter()
         .append('circle')
+        .attr('opacity', .8)
         .attr('class', 'neighborhood')
         .attr('r', d => radiusScale(d.population))
         .attr('fill', d => colorScale(d.avg_food_insecure))
@@ -92,29 +95,27 @@ d3.csv('../data/food_insecurity.csv', d => {
       .append('text')
       .text(d => d.neighborhood)
       .style("text-anchor", "middle")
-      .style("fill", d => d.avg_food_insecure > 500 ? 'white':'#333')
+      .style("fill", d => d.avg_food_insecure > 500 ? '#gray':'#333')
       .style("font-family", "Arial")
       .style("font-size", 16);
 
       //buttons
-      d3.select('#five')
-      .on('click', d => {
-        simulation
-          .force('x', forceXSeparate)
-          .alphaTarget(0.5)
-          .restart();
-        console.log('five');
-      });
 
-      d3.select('#seven_five')
-      .on('click', d => {
-        console.log('five');
-      })
 
-      d3.select('#ten')
-      .on('click', d => {
-        console.log('five');
-      });
+      const clickButton = (buttonID, rate) =>  {
+        return d3.select(buttonID)
+        .on('click', d => {
+          simulation
+            .force('x', forceXSeparate(rate))
+            .alphaTarget(0.5)
+            .restart();
+          console.log('five');
+        });
+      }
+
+      clickButton('#five', 5);
+      clickButton('#seven_five', 7.5);
+      clickButton('#ten', 10);
 
       d3.select('#combine')
       .on('click', d => {
