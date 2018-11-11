@@ -95,9 +95,10 @@ d3.csv('../data/food_insecurity.csv', d => {
       .append('text')
       .text(d => d.neighborhood)
       .style("text-anchor", "middle")
-      .style("fill", d => d.avg_food_insecure > 500 ? '#gray':'#333')
-      .style("font-family", "Arial")
-      .style("font-size", 16);
+      .style("fill", d => d.avg_food_insecure > 500 ? '#8a8a8a':'#333')
+      .style("font-family", "Noto Sans, sans-serif")
+      .style("font-size", 12)
+      .style('font-weight', 'bold');
 
       //buttons
 
@@ -110,6 +111,31 @@ d3.csv('../data/food_insecurity.csv', d => {
             .alphaTarget(0.5)
             .restart();
           console.log('five');
+
+        //removing labels
+        d3.selectAll('.unemployment_label')
+        .remove();
+
+        //attaching labels
+        d3.select('svg')
+        .append('text')
+        .attr('x', 100)
+        .attr('y', 100)
+        .attr('class', 'unemployment_label')
+        .transition()
+        .text(`Less than ${rate}% unemployment`)
+        .style("font-family", "Noto Sans, sans-serif")
+        .style("font-size", 20)
+
+        d3.select('svg')
+        .append('text')
+        .attr('x', 650)
+        .attr('y', 100)
+        .attr('class', 'unemployment_label')
+        .transition()
+        .text(`Greater than ${rate}% unemployment`)
+        .style("font-family", "Noto Sans, sans-serif")
+        .style("font-size", 20)
         });
       }
 
@@ -123,6 +149,9 @@ d3.csv('../data/food_insecurity.csv', d => {
           .force('x', forceXCombine)
           .alphaTarget(0.5)
           .restart();
+
+        d3.selectAll('.unemployment_label')
+          .remove();
       });
   
       simulation.nodes(consolidated_data)
