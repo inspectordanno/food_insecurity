@@ -4,7 +4,8 @@ d3.csv('../data/food_insecurity.csv', d => {
         neighborhood: d.nhd,
         population: +d.pop,
         poverty_rate: +d.pov_p,
-        food_insecure: +d.fi_p
+        food_insecure: +d.fi_num,
+        unemployed: +d.unemp_p
       };
     }
   }).then(data =>{
@@ -14,48 +15,59 @@ d3.csv('../data/food_insecurity.csv', d => {
         return {
           population: Math.round(d3.sum(values, function(d){return d.population})),
           poverty_rate: d3.format(".3n")(d3.mean(values, function(d){return d.poverty_rate})),
-          food_insecure: d3.format(".3n")(d3.mean(values, function(d){return d.food_insecure}))
+          food_insecure: d3.format(".3n")(d3.mean(values, function(d){return d.food_insecure})),
+          unemployed: d3.format(".3n")(d3.mean(values, function(d){return d.unemployed}))
         };
       })
       .entries(data);
+
+      console.log(neighborhoods)
 
       const consolidated_data = neighborhoods.map(d => {
         return {
           neighborhood: d.key,
           population: d.value.population,
           avg_poverty_rate: +d.value.poverty_rate,
-          avg_food_insecure_rate: +d.value.food_insecure
+          avg_food_insecure: +d.value.food_insecure,
+          avg_unemployed: +d.value.unemployed
         };
       });
       console.log(consolidated_data);
 
-      const width = 500;
-      const height = 500;
+      const width = 1200;
+      const height = width/1.4
 
       const svg = d3.select('#svg_container')
       .append('svg')
       .attr('width', width)
       .attr('height', height)
-      .style('background-color', 'lightgray')
+      .style('background-color', 'steelblue')
       .append('g')
       .attr('transform', 'translate(0,0)')
 
-      const radiusScale = d3.scaleSqrt().domain([5000, 120000]).range([10,80]);
+      //scales
 
-      const colorScale = d3.scaleSequential(d3.interpolateRdYlGn)
-        .domain([5, 50])
+      const radiusScale = d3.scaleSqrt().domain([5000, 120000]).range([8,60]);
+
+      const colorScale = d3.scaleSequential(d3.interpolateReds)
+        .domain([250, 1000])
 
       //the simulation is a collection of forces 
       //about where we want our forcs to go and how
       //we want our forces to interact
       //step one: get them to the middle
       //step two: don't have them collide
-      const simulation = d3.forceSimulation()
-        .force('x', d3.forceX(width / 2).strength(0.05))
+
+      const forceXCombine = d3.forceX(width/2).strength(0.05)
+
+      const forceCollide = d3.forceCollide(d => {
+        return radiusScale(d.population) + 20;
+      });
+
+      let simulation = d3.forceSimulation()
+        .force('x', forceXCombine)
         .force('y', d3.forceY(height / 2).strength(0.05))
-        .force('collide', d3.forceCollide(d => {
-          return radiusScale(d.population) + 1;
-        }))
+        .force('collide', forceCollide);
 
       const circles = svg.selectAll('.neighborhoods')
         .data(consolidated_data)
@@ -63,15 +75,36 @@ d3.csv('../data/food_insecurity.csv', d => {
         .append('circle')
         .attr('class', 'neighborhood')
         .attr('r', d => radiusScale(d.population))
-        .attr('fill', d => colorScale(d.avg_poverty_rate))
-        .on('click', d => console.log(d))
+        .attr('fill', d => colorScale(d.avg_food_insecure))
+        .attr('id', d => d.neighborhood)
+      
+      const labels = svg.selectAll(null)
+      .data(consolidated_data)
+      .enter()
+      .append('text')
+      .text(d => d.neighborhood)
+      .style("text-anchor", "middle")
+      .style("fill", d => d.avg_food_insecure > 500 ? 'white':'#333')
+      .style("font-family", "Arial")
+      .style("font-size", 16);
 
+      //buttons
+      d3.select('#five')
+      .on('click', d => {
+        console.log('five');
+      });
+  
       simulation.nodes(consolidated_data)
         .on('tick', ticked);
 
       function ticked() {
         circles
           .attr('cx', d => d.x)
-          .attr('cy', d => d.y)
+          .attr('cy', d => d.y);
+        
+        labels
+          .attr('x', d => d.x)
+          .attr('y', d => d.y)
       }
+
   });
