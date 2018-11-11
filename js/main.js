@@ -58,14 +58,20 @@ d3.csv('../data/food_insecurity.csv', d => {
       //step one: get them to the middle
       //step two: don't have them collide
 
-      const forceXCombine = d3.forceX(width/2).strength(0.05)
+       forceX = d3.forceX(d => {
+        if (d.avg_unemployed < 5) {
+          return 200;
+        } else {
+          return 800;
+        }
+      });
 
       const forceCollide = d3.forceCollide(d => {
         return radiusScale(d.population) + 20;
       });
 
       let simulation = d3.forceSimulation()
-        .force('x', forceXCombine)
+        .force('x', forceX)
         .force('y', d3.forceY(height / 2).strength(0.05))
         .force('collide', forceCollide);
 
@@ -92,6 +98,21 @@ d3.csv('../data/food_insecurity.csv', d => {
       d3.select('#five')
       .on('click', d => {
         console.log('five');
+      });
+
+      d3.select('#seven_five')
+      .on('click', d => {
+        console.log('five');
+      })
+
+      d3.select('#ten')
+      .on('click', d => {
+        console.log('five');
+      });
+
+      d3.select('#combine')
+      .on('click', d => {
+        console.log('combine');
       });
   
       simulation.nodes(consolidated_data)
